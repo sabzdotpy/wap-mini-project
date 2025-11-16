@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DynamicMart - Advanced Retail Storefront</title>
+    
+    <!-- tailwind css -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- font awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <!-- custom styles -->
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.75);
+            border: 1px solid rgba(209, 213, 219, 0.3);
+        }
+        
+        .product-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .search-suggestions {
+            backdrop-filter: blur(16px) saturate(180%);
+            background-color: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(209, 213, 219, 0.3);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .category-node {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .category-node.expanded {
+            background-color: #f3f4f6;
+        }
+        
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        /* modal transitions */
+        .modal-overlay {
+            transition: opacity 300ms ease-in-out;
+        }
+        
+        .modal-content {
+            transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* modal states */
+        .modal-hidden {
+            opacity: 0;
+        }
+        
+        .modal-visible {
+            opacity: 1;
+        }
+        
+        .modal-scale-hidden {
+            transform: scale(0.95);
+            opacity: 0;
+        }
+        
+        .modal-scale-visible {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        /* custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+    </style>
+    
+    <!-- tailwind config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#667eea',
+                        secondary: '#764ba2'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- header -->
+    <header class="gradient-bg text-white shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <!-- logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center">
+                        <i class="fas fa-store text-primary text-xl"></i>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight">DynamicMart</h1>
+                </div>
+                
+                <!-- search bar -->
+                <div class="flex-1 max-w-xl mx-8 relative">
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="search products..." 
+                            class="w-full px-4 py-3 pl-12 pr-4 rounded-full bg-white/20 backdrop-blur text-white placeholder-gray-200 border border-white/30 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all duration-300"
+                            autocomplete="off"
+                        >
+                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-200"></i>
+                    </div>
+                    
+                    <!-- search suggestions -->
+                    <div id="searchSuggestions" class="absolute top-full left-0 right-0 mt-2 search-suggestions rounded-xl shadow-xl z-50 max-h-96 overflow-y-auto custom-scrollbar hidden">
+                    </div>
+                </div>
+                
+                <!-- csv upload -->
+                <div class="flex items-center space-x-4">
+                    <label for="csvUpload" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg cursor-pointer transition-colors duration-200 flex items-center space-x-2">
+                        <i class="fas fa-upload"></i>
+                        <span>upload csv</span>
+                    </label>
+                    <input type="file" id="csvUpload" accept=".csv" class="hidden">
+                    
+                    <div class="bg-white/20 px-4 py-2 rounded-lg flex items-center space-x-2">
+                        <span id="productCount">0</span>
+                        <span>products</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- main container -->
+    <div class="container mx-auto px-6 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- sidebar -->
+            <aside class="lg:w-1/4">
+                <!-- filters -->
+                <div class="glass-effect rounded-2xl p-6 mb-6 animate__animated animate__fadeInLeft">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-filter mr-2 text-primary"></i>
+                        filters
+                    </h3>
+                    
+                    <!-- price range -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">price range</label>
+                        <div class="space-y-2">
+                            <input 
+                                type="range" 
+                                id="minPrice" 
+                                min="0" 
+                                max="100000" 
+                                value="0" 
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                            >
+                            <input 
+                                type="range" 
+                                id="maxPrice" 
+                                min="0" 
+                                max="100000" 
+                                value="100000" 
+                                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+                            >
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>₹<span id="minPriceDisplay">0</span></span>
+                                <span>₹<span id="maxPriceDisplay">100000</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- category filter -->
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium mb-2">categories</label>
+                        <div id="categoryFilters" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar">
+                        </div>
+                    </div>
+                    
+                    <!-- clear filters -->
+                    <button 
+                        id="clearFilters" 
+                        class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors duration-200 flex items-center justify-center space-x-2"
+                    >
+                        <i class="fas fa-times"></i>
+                        <span>clear filters</span>
+                    </button>
+                </div>
+                
+                <!-- category tree -->
+                <div class="glass-effect rounded-2xl p-6 animate__animated animate__fadeInLeft animate__delay-1s">
+                    <h3 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="fas fa-sitemap mr-2 text-primary"></i>
+                        categories
+                    </h3>
+                    <div id="categoryTree" class="space-y-1">
+                    </div>
+                </div>
+            </aside>
+
+            <!-- main content -->
+            <main class="flex-1">
+                <!-- controls -->
+                <div class="glass-effect rounded-2xl p-6 mb-6 animate__animated animate__fadeInRight">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold mb-1">product catalog</h2>
+                            <p class="text-gray-600" id="resultsCount">loading products...</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-4">
+                            <!-- sort dropdown -->
+                            <select id="sortSelect" class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <option value="name-asc">name (a-z)</option>
+                                <option value="name-desc">name (z-a)</option>
+                                <option value="price-asc">price (low-high)</option>
+                                <option value="price-desc">price (high-low)</option>
+                                <option value="category-asc">category (a-z)</option>
+                            </select>
+                            
+                            <!-- view toggle -->
+                            <div class="flex bg-gray-200 rounded-lg p-1">
+                                <button id="gridView" class="px-3 py-2 rounded bg-white shadow-sm transition-all duration-200">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button id="listView" class="px-3 py-2 rounded transition-all duration-200">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- products grid -->
+                <div id="productsContainer" class="animate__animated animate__fadeIn">
+                    <!-- loading skeleton -->
+                    <div id="loadingContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- skeleton cards will be generated by js -->
+                    </div>
+                    
+                    <!-- products grid -->
+                    <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                    </div>
+                    
+                    <!-- products list -->
+                    <div id="productsList" class="space-y-4 hidden">
+                    </div>
+                    
+                    <!-- no results -->
+                    <div id="noResults" class="text-center py-12 hidden">
+                        <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+                        <h3 class="text-xl font-semibold text-gray-600 mb-2">no products found</h3>
+                        <p class="text-gray-500">try adjusting your filters or search terms</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- floating action buttons -->
+    <div class="fixed bottom-6 right-6 space-y-3">
+        <!-- add product -->
+        <button 
+            id="addProductBtn" 
+            class="bg-primary hover:bg-secondary text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+            title="add product"
+        >
+            <i class="fas fa-plus text-xl group-hover:rotate-90 transition-transform duration-300"></i>
+        </button>
+        
+        <!-- help button -->
+        <button 
+            id="helpBtn" 
+            class="bg-green-500 hover:bg-green-600 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group"
+            title="help & info"
+        >
+            <i class="fas fa-question text-xl group-hover:bounce transition-transform duration-300"></i>
+        </button>
+        
+        <!-- scroll to top -->
+        <button 
+            id="scrollToTop" 
+            class="bg-gray-600 hover:bg-gray-700 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center hidden"
+            title="scroll to top"
+        >
+            <i class="fas fa-arrow-up text-xl"></i>
+        </button>
+    </div>
+
+    <!-- add product modal -->
+    <div id="addProductModal" class="modal-overlay fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-hidden">
+        <div class="modal-content bg-white rounded-2xl p-8 m-4 w-full max-w-md modal-scale-hidden">
+            <h3 class="text-2xl font-bold mb-6 flex items-center">
+                <i class="fas fa-plus mr-3 text-primary"></i>
+                add product
+            </h3>
+            
+            <form id="addProductForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">product name</label>
+                    <input type="text" id="productName" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">category</label>
+                    <input type="text" id="productCategory" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">subcategory</label>
+                    <input type="text" id="productSubcategory" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">price (₹)</label>
+                    <input type="number" id="productPrice" step="0.01" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">image url</label>
+                    <input type="url" id="productImage" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium mb-1">description</label>
+                    <textarea id="productDescription" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required></textarea>
+                </div>
+                
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-primary hover:bg-secondary text-white py-2 rounded-lg transition-colors duration-200">
+                        add product
+                    </button>
+                    <button type="button" id="cancelAddProduct" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg transition-colors duration-200">
+                        cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- help modal -->
+    <div id="helpModal" class="modal-overlay fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-hidden">
+        <div class="modal-content bg-white rounded-2xl p-8 m-4 w-full max-w-2xl modal-scale-hidden">
+            <h3 class="text-3xl font-bold mb-6 flex items-center text-green-600">
+                <i class="fas fa-rocket mr-3"></i>
+                Advanced level student
+            </h3>
+            
+            <div class="space-y-6 max-h-96 overflow-y-auto custom-scrollbar">
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border-l-4 border-blue-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-magic mr-2 text-blue-600"></i>
+                        advanced animations & micro-interactions
+                    </h4>
+                    <p class="text-gray-700">sophisticated css animations, hover effects, skeleton loading screens, smooth transitions, and interactive elements that provide premium user experience</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border-l-4 border-green-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-mobile-alt mr-2 text-green-600"></i>
+                        responsive & adaptive design
+                    </h4>
+                    <p class="text-gray-700">mobile-first approach with tailwind css, flexible layouts that adapt to all screen sizes, and touch-friendly interactions</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-purple-50 to-violet-50 p-4 rounded-lg border-l-4 border-purple-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-bolt mr-2 text-purple-600"></i>
+                        dynamic content management
+                    </h4>
+                    <p class="text-gray-700">real-time product filtering, dynamic category generation, csv import/export, crud operations, and live search suggestions</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-yellow-50 to-orange-50 p-4 rounded-lg border-l-4 border-yellow-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-code mr-2 text-yellow-600"></i>
+                        advanced javascript architecture
+                    </h4>
+                    <p class="text-gray-700">es6+ class-based structure, event-driven updates, performance optimization, debounced search, and efficient dom manipulation</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-red-50 to-pink-50 p-4 rounded-lg border-l-4 border-red-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-filter mr-2 text-red-600"></i>
+                        intelligent filtering system
+                    </h4>
+                    <p class="text-gray-700">multi-dimensional filtering (text, price range, categories), real-time updates, and smart search with autocomplete</p>
+                </div>
+                
+                <div class="bg-gradient-to-r from-teal-50 to-cyan-50 p-4 rounded-lg border-l-4 border-teal-500">
+                    <h4 class="font-bold text-lg mb-2 flex items-center">
+                        <i class="fas fa-tachometer-alt mr-2 text-teal-600"></i>
+                        performance optimization
+                    </h4>
+                    <p class="text-gray-700">lazy loading, skeleton screens, optimized dom updates, efficient data structures, and minimal reflows</p>
+                </div>
+            </div>
+            
+            <div class="flex justify-end pt-6 border-t mt-6">
+                <button id="closeHelpModal" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2">
+                    <i class="fas fa-check"></i>
+                    <span>got it!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- notification toast -->
+    <div id="toast" class="fixed top-20 right-6 bg-white rounded-lg shadow-xl p-4 z-50 transform translate-x-full transition-transform duration-300">
+        <div class="flex items-center space-x-3">
+            <div id="toastIcon" class="w-8 h-8 rounded-full flex items-center justify-center">
+            </div>
+            <div>
+                <div id="toastTitle" class="font-semibold"></div>
+                <div id="toastMessage" class="text-sm text-gray-600"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- main javascript -->
+    <script src="script.js"></script>
+</body>
+</html>

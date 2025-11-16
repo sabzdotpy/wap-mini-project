@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Store Variations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .versions {
+            display: flex;
+            justify-content: space-around;
+            gap: 1rem;
+        }
+
+        .version {
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .version a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            transition: box-shadow 0.3s, transform 0.3s;
+        }
+
+        .version a:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+
+        .version img {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 0.5rem;
+        }
+
+        .version p {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Product Store Variations</h1>
+        <div class="versions">
+            <div class="version">
+                <a href="beginner/index.html">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3514/3514447.png" alt="Beginner Version">
+                    <p>Beginner Version</p>
+                </a>
+            </div>
+            <div class="version">
+                <a href="intermediate/index.html">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3721/3721555.png" alt="Intermediate Version">
+                    <p>Intermediate Version</p>
+                </a>
+            </div>
+            <div class="version">
+                <a href="advanced/index.html">
+                    <img src="https://cdn-icons-png.flaticon.com/512/4299/4299088.png" alt="Advanced Version">
+                    <p>Advanced Version</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

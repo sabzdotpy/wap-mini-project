@@ -1,0 +1,6 @@
+name,category,price,subcategory,image,description
+"Basic Wireless Mouse",electronics,2500,accessories,"https://images.unsplash.com/photo-1527814050087-3793815479db?w=400&h=300&fit=crop","Simple wireless computer mouse"
+"Cotton T-Shirt",clothing,1200,casual,"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop","Comfortable cotton t-shirt"
+"Water Bottle",sports,800,accessories,"https://images.unsplash.com/photo-1602143407151-7111542de6e8?w=400&h=300&fit=crop","Stainless steel water bottle"
+"Desk Organizer",home,1500,office,"https://images.unsplash.com/photo-1586953983027-d7508a64f4bb?w=400&h=300&fit=crop","Wooden desk organizer"
+"Phone Charger",electronics,1800,accessories,"https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&h=300&fit=crop","Fast charging USB cable"

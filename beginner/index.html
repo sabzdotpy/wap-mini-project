@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Product Store</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .filters {
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        
+        .filters h3 {
+            margin-top: 0;
+        }
+        
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .product-list {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+        
+        .product {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .product:last-child {
+            border-bottom: none;
+        }
+        
+        .product img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 1px solid #ddd;
+        }
+        
+        .product-info {
+            flex: 1;
+        }
+        
+        .product-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .product-category {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .product-description {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .product-price {
+            font-size: 20px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        .button:hover {
+            background-color: #45a049;
+        }
+        
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            overflow: auto;
+            background-color: white;
+            margin: 5px auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            max-height: 90%;
+            border-radius: 5px;
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close:hover {
+            color: red;
+        }
+        
+        .no-products {
+            text-align: center;
+            padding: 50px;
+            color: #666;
+        }
+        
+        select, input[type="range"] {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>My Product Store</h1>
+    </div>
+    
+    <div class="container">
+        <div class="filters">
+            <h3>Filters</h3>
+            
+            <div class="filter-group">
+                <label>Sort by:</label>
+                <select id="sortSelect">
+                    <option value="name">Name</option>
+                    <option value="price-low">Price (Low to High)</option>
+                    <option value="price-high">Price (High to Low)</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <label>Maximum Price: ₹<span id="priceValue">50000</span></label>
+                <input type="range" id="priceRange" min="0" max="50000" value="50000">
+            </div>
+            
+            <div class="filter-group">
+                <label>Category:</label>
+                <select id="categorySelect">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            
+            <button class="button" onclick="clearFilters()">Clear Filters</button>
+        </div>
+        
+        <div class="product-list">
+            <h3>Products (<span id="productCount">0</span>)</h3>
+            <div id="productContainer">
+                <div class="no-products">Loading products...</div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="help-button" onclick="showHelp()">?</button>
+    
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeHelp()">&times;</span>
+            <h2>Beginner Web Development Project</h2>
+            <p>This is a simple product catalog built with basic web technologies:</p>
+            
+            <h4>HTML</h4>
+            <p>• Basic structure with divs and semantic elements</p>
+            <p>• Simple forms and buttons</p>
+            
+            <h4>CSS</h4>
+            <p>• Basic styling with colors and layouts</p>
+            <p>• Simple flexbox for product display</p>
+            <p>• Basic hover effects</p>
+            
+            <h4>JavaScript</h4>
+            <p>• Simple functions and event handlers</p>
+            <p>• Basic array filtering and sorting</p>
+            <p>• DOM manipulation with getElementById</p>
+            
+            <h4>Features</h4>
+            <p>• Product filtering by price and category</p>
+            <p>• Basic sorting options</p>
+            <p>• Simple modal dialog</p>
+            
+            <button class="button" onclick="closeHelp()">Close</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
